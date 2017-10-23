@@ -1,0 +1,58 @@
+@startuml
+
+''''' states
+
+readyToHarvest : gearGrab=Open
+readyToHarvest : armHorizontalGo=In
+readyToHarvest : armVerticalGo=Down
+readyToHarvest : harvDrive=Off
+
+waitingForHarvestState : gearGrab=Open
+waitingForHarvestState : armHorizontalGo=Out
+waitingForHarvestState : armVerticalGo=Down
+waitingForHarvestState : harvDrive=On
+
+waitingForGearInHarvester : gearGrab=Open
+waitingForGearInHarvester : armHorizontalGo=Out
+waitingForGearInHarvester : armVerticalGo=Down 
+waitingForGearInHarvester : harvDrive=On
+
+grabbingGear : gearGrab=Closed
+grabbingGear : armHorizontalGo=Out
+grabbingGear : armVerticalGo=Down 
+grabbingGear : harvDrive=On
+
+gearIsGrabbed : gearGrab=Closed
+gearIsGrabbed : armHorizontalGo=Out
+gearIsGrabbed : armVeticalGo=Down
+gearIsGrabbed : harvDrive=Off
+
+raisingArm : gearGrab=Closed
+raisingArm : armHorizontalGo=In
+raisingArm : armVerticalGo=Up
+raisingArm : harvDrive=Off
+
+gearIsSecured : gearGrab=Closed
+gearIsSecured : armHorizontalGo=In
+gearIsSecured : armVerticalGo=Up
+gearIsSecured : harvDrive=Off
+
+''''' transitions
+
+[*] -right-> readyToHarvest
+
+readyToHarvest -right-> waitingForHarvestState: doGearSequence/\n harvDrive=On\n armHorizontalGo=Out 
+
+waitingForHarvestState -right-> waitingForGearInHarvester: wheelsAtSpeed=T
+
+waitingForGearInHarvester -down-> grabbingGear: gearInGrabber=T/\n gearGrab=Close
+
+grabbingGear -left-> gearIsGrabbed: gearInGrabber=T/\n harvDrive=Off
+
+gearIsGrabbed -left-> raisingArm: gearInGrabber=T\n wheelsAtSpeed=F/\n armHorizontalGo=In\n armVerticalGo=Up
+
+raisingArm -down-> gearIsSecured: gearInGrabber=T\n armHorizontalPos=In\n armVeticalPos=Up
+
+gearIsSecured -right-> [*]
+
+@enduml
